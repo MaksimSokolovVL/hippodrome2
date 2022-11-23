@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--status -> отображение "проблем" самого логера и системных ошибок-->
+<Configuration status="warn" name="MyApp" packages="">
+    <Properties>
+        <Property name="baseDir">logs</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_ERR"> <!--target="SYSTEM_OUT"-->
+            <PatternLayout pattern="%d %-5p %C{2} (%F:%L) - %m%n"/>
+        </Console>
+        <!-- name имя сборки| -> папка для хранения логов| ->  false-перезаписывает лог, true - добавляет данные в лог   -->
+        <File name="LogFile" fileName="${baseDir}/hippodrome.log" append="true">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.}: %m%n
+                </Pattern>  <!--//2022-11-23 20:45:34,993 INFO Main: Начало скачек. Количество участников: 7-->
+            </PatternLayout>
+        </File>
+        <RollingFile name="RollingFile" fileName="${baseDir}/rolling-file.log"
+                     filePattern="${baseDir}/rolling-file.%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t]: %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+                <!--                <TimeBasedTriggeringPolicy />-->
+                <SizeBasedTriggeringPolicy size="2 KB"/>
+            </Policies>
+
+            <!-- Max 3 фала в день -->
+            <DefaultRolloverStrategy max="3">
+                <Delete basePath="${baseDir}" maxDepth="2">
+                    <!-- удалять файлы которым 7 дней -->
+                    <IfLastModified age="P7D"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+
+    </Appenders>
+    <Loggers>
+        <!--status  ->  ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF-->
+        <Root level="trace">  <!--уровень логирования приложения-->
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="LogFile"/>
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
